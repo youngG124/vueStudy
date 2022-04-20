@@ -87,27 +87,29 @@ createApp({
     },
     methods: {
         enter_pressed() {
-            console.log(`enter pressed, ${this.message}`);
-
-            console.log(`입력된 질문 : ${this.text2}`);
-
             this.html = `${this.html} 
                 <div class="item mymsg"><div class="onbox"><p class="msg">
-                ${this.text2}<span class="time">${currentTime()}                    
+                ${this.text2} <span class="time">${currentTime()}                    
                 </span></mybox></div>`
 
-            var lastItem = $(".chat_wrap .inner").find(".item:last");
-            setTimeout(function(){
-                lastItem.addClass("on");
-            },10);
+            // //테스트하면서 쓰레기값이 너무 많이 들어가니까 일단 add는 꺼놓음.
+            // console.log("뽑은 답변 : " + __answer__);
+            // this.html = `${this.html}
+            //     <div class="item yourmsg"><div class="boxx">
+            //     ${__answer__}<span class="time">${currentTime()}
+            //     </span></div></div>`
 
             add(this.text2);
-
             this.text2 = '';
+            makeQuestionToModel(this.text2);
+
+
         }
     }
 }).mount('#app')
 
+
+////////////////////////// ajax(Jquery) ////////////////////////////
 // insert question to DB
 function add(question_, callback, error) {
 	console.log("DB에 질문 입력하기, 질문 : " + question);
@@ -123,7 +125,8 @@ function add(question_, callback, error) {
 		data : data_,
 		contentType : "application/json; charset=utf-8",
 		success : function(result, status, xhr) {
-			console.log("DB에 질문 입력하기 성공. 입력한 질문 : " + JSON.stringify(question));
+			console.log("DB에 질문 입력하기 성공. 입력한 질문 : "
+            + JSON.stringify(question));
 			if (callback) {
 				callback(result);
 			}
@@ -140,5 +143,29 @@ function add(question_, callback, error) {
         console.log(e);
 		alert("ajax, DB에 질문 입력하기 실패. 사용할 수 없는 api.");
 		})
+}
+
+var __answer__ = '';
+//CALL Python(flask) CONNECTING API
+function makeQuestionToModel(question) {	
+	console.log("외부 api 사용해서 답변 생성하기 시작. 사용할 질문 : "
+    + JSON.stringify(question));
+
+	$.ajax({
+		type : "GET",
+		url : "http://127.0.0.1:5005/" + question,
+		dataType :'json',
+		async : false,
+		success:function(data){
+			console.log("답변 생성 성공. ai가 생성한 답변 : " + data.answer);
+            __answer__ = data.answer;
+		}
+	})
+	.fail(function() {
+	console.log("ajax를 사용한 외부 api(챗봇인공지능모델) 연결 실패.\n \
+    챗봇 답변생성 서버가 실행되고 있지 않은 상태일 수 있습니다.");
+	alert("ajax를 사용한 외부 api(챗봇인공지능모델) 연결 실패.\n \
+    챗봇 답변생성 서버가 실행되고 있지 않은 상태일 수 있습니다.");
+	});
 }
 </script>
