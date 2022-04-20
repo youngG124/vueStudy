@@ -1,0 +1,144 @@
+<head>
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <title>chatbot example</title>
+    
+        <style>   	
+            .chat_wrap { 
+                position:absolute;
+                left:50%; margin-left:-160px;
+                top:10%;
+                border:1px solid #999;
+                width:300px; padding:5px;
+                font-size:13px; color:#333; }
+            .chat_wrap .inner{background-color:#acc2d2; border-radius:5px; padding:10px; overflow-y:scroll;height: 400px;}
+            .chat_wrap .item{margin-top:0px}
+            .chat_wrap .item:first-child{margin-top:0px}
+            .chat_wrap .item .box{display:inline-block; max-width:180px; position:relative}
+            .chat_wrap .item .box::before{content:""; position:absolute; left:-8px; top:9px; border-top:0px solid transparent; border-bottom:8px solid transparent;border-right:8px solid #fff;}
+            .chat_wrap .item .box .msg {background:#fff; border-radius:10px; padding:8px; text-align:left}
+            .chat_wrap .item .box .time {font-size:11px; color:#999; position:absolute; right: -75px; bottom:5px; width:70px}
+            .chat_wrap .item.mymsg{text-align:right}
+            .chat_wrap .item.mymsg .box::before{left:auto; right:-8px; border-left:8px solid #fee600; border-right:0;}
+            .chat_wrap .item.mymsg .box .msg{background:#fee600}
+            .chat_wrap .item.mymsg .box .time{right:auto; left:-75px}
+            .chat_wrap .item .box{transition:all .3s ease-out; margin:0 0 0 20px;opacity:0}
+            .chat_wrap .item.mymsg .box{transition:all .3s ease-out; margin:0 20px 0 0;}
+            .chat_wrap .item.on .box{margin:0; opacity: 1;}
+            input[id="question"]{border:0; width:100%;background:#ddd; border-radius:5px; height:30px; padding-left:5px; box-sizing:border-box; margin-top:1px}
+            input[id="question"]::placeholder{color:#999}
+        </style>
+</head>
+
+<script type="importmap">
+    {
+      "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+      }
+    }
+    
+</script>
+  
+  <div id="app">
+    <div class="chat_wrap">
+        <div class="inner">
+            <!-- chat -->
+            <div v-html="html"></div>
+        </div>        
+        <input @keyup.enter="enter_pressed" id='question' v-model="text2"
+        type="text" class="mymsg" placeholder='질문을 입력하세요' >
+    </div>
+  </div>
+
+<script type="module">
+
+/////////////////////// 시간 관련 함수들 /////////////////////////////
+
+function minusTwelve(hour) {
+    return hour > 12 ? hour-12 : hour;
+}
+
+function fillZero(minute) {
+    return String(minute).length == 2 ? minute : "0"+minute;
+}
+
+var currentTime = function(){
+    var date = new Date();
+    var hh = date.getHours();
+    var mm = date.getMinutes();
+    var apm = hh >12 ? "오후":"오전";
+    var ct = apm + " "+minusTwelve(hh)+":"+fillZero(mm)+"";
+    return ct;
+}
+
+////////////////////////////////////////////////////////////////////
+
+import { createApp } from 'vue';
+
+createApp({
+    data() {
+        return {
+            message : 'question input',
+            text2 : '',
+            html : '',
+        }
+    },
+    methods: {
+        enter_pressed() {
+            console.log(`enter pressed, ${this.message}`);
+
+            console.log(`입력된 질문 : ${this.text2}`);
+
+            this.html = `${this.html} 
+                <div class="item mymsg"><div class="onbox"><p class="msg">
+                ${this.text2}<span class="time">${currentTime()}                    
+                </span></mybox></div>`
+
+            var lastItem = $(".chat_wrap .inner").find(".item:last");
+            setTimeout(function(){
+                lastItem.addClass("on");
+            },10);
+
+            add(this.text2);
+
+            this.text2 = '';
+        }
+    }
+}).mount('#app')
+
+// insert question to DB
+function add(question_, callback, error) {
+	console.log("DB에 질문 입력하기, 질문 : " + question);
+    // string => object
+    var question = {
+        question : question_
+    };
+    var data_ = JSON.stringify(question);
+    console.log(data_);
+	$.ajax({
+		type : 'post',
+		url : 'http://localhost:8080/questions/new',
+		data : data_,
+		contentType : "application/json; charset=utf-8",
+		success : function(result, status, xhr) {
+			console.log("DB에 질문 입력하기 성공. 입력한 질문 : " + JSON.stringify(question));
+			if (callback) {
+				callback(result);
+			}
+		},
+		error : function(xhr, status, er) {
+			if (error) {
+				error(er);
+				console.log("DB에 질문 입력 실패.")
+			}
+		}
+	})
+	.fail(function(e) {
+		console.log("ajax, DB에 질문 입력하기 실패. 사용할 수 없는 api.");
+        console.log(e);
+		alert("ajax, DB에 질문 입력하기 실패. 사용할 수 없는 api.");
+		})
+}
+</script>
