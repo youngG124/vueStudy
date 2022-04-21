@@ -93,17 +93,16 @@ createApp({
                 </span></mybox></div>`
 
             // //테스트하면서 쓰레기값이 너무 많이 들어가니까 일단 add는 꺼놓음.
-            // console.log("뽑은 답변 : " + __answer__);
-            // this.html = `${this.html}
-            //     <div class="item yourmsg"><div class="boxx">
-            //     ${__answer__}<span class="time">${currentTime()}
-            //     </span></div></div>`
+            console.log("뽑은 답변 : " + __answer__);
+            
 
-            add(this.text2);
-            this.text2 = '';
+            //add(this.text2);
             makeQuestionToModel(this.text2);
-
-
+            this.html = `${this.html}
+                <div class="item yourmsg"><div class="boxx">
+                ${__answer__}<span class="time">${currentTime()}
+                </span></div></div>`
+            this.text2 = '';
         }
     }
 }).mount('#app')

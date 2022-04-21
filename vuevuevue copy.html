@@ -1,0 +1,84 @@
+<head>
+    <meta charset="UTF-8">
+    <title>chatbot example</title>    
+        <style>   	
+            .chat_wrap { 
+                position:absolute;
+                left:50%; margin-left:-160px;
+                top:10%;
+                border:1px solid #999;
+                width:300px; padding:5px;
+                font-size:13px; color:#333; }
+            .chat_wrap .inner{background-color:#acc2d2; border-radius:5px; padding:10px; overflow-y:scroll;height: 400px;}
+            
+            li {
+                list-style-type : none;
+            }
+
+            li:nth-child(even) {color: green}
+            li:nth-child(odd) {text-align:right}
+
+            .box{display:inline-block; max-width:180px; position:relative}
+            .box .msg{background:#fff; border-radius:10px; padding:8px; text-align:left}
+
+            input[id="question"]{border:0; width:100%;background:#ddd; border-radius:5px; height:30px; padding-left:5px; box-sizing:border-box; margin-top:1px}
+            input[id="question"]::placeholder{color:#999}
+        </style>
+</head>
+<script type="importmap">
+    {
+      "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+      }
+    }    
+</script>
+
+<script type="module">
+    import { createApp } from 'vue';
+
+    
+    function bringAnswerFromModel(question) {
+        console.log("인공지능 모델 함수 호출");
+        return question+' 에 대한 답변입니다.';
+    }
+    
+    let id = 0
+    
+    createApp({
+        data() {
+            return {
+                myChat: '',
+                chatLog: [    
+                ]
+            }
+        },
+        // chatNumber로 질문/답변을 홀수, 짝수 구분해 오류시 처리를 추가하지말고,
+        // 인공지능 서버 오류 떠도 무조건 대화 출력하도록 할 것. (답변으로 서버 오류 알림)
+        methods: {
+            addMyChats() {
+                this.chatLog.push({id:id++, text:this.myChat})
+
+                // 인공지능 모델의 답변 처리
+                this.chatLog.push({id:id++, text:bringAnswerFromModel(this.myChat)})
+                this.myChat = ''
+            }
+        }
+    }).mount('#app')    
+</script>
+
+<div id="app">
+    <div class="chat_wrap">
+        <div class="inner">
+            <!-- chat -->
+            <li v-for="myChat in chatLog" key="myChat.id">
+                <div class = "box">
+                    <p class="msg">
+                        {{ myChat.text }}
+                    </p>
+                </div>                
+            </li>
+        </div>        
+        <input @keyup.enter="addMyChats" id='question' v-model="myChat"
+        type="text" class="mymsg" placeholder='질문을 입력하세요' >
+    </div>
+</div>
