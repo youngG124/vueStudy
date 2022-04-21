@@ -15,8 +15,8 @@
                 list-style-type : none;
             }
 
-            li:nth-child(even) {color: green}
             li:nth-child(odd) {text-align:right}
+            li:nth-child(odd) .box .msg {background:#fee600}
 
             .box{display:inline-block; max-width:180px; position:relative}
             .box .msg{background:#fff; border-radius:10px; padding:8px; text-align:left}
@@ -47,7 +47,7 @@
     createApp({
         data() {
             return {
-                myChat: '',
+                chat: '',
                 chatLog: [    
                 ]
             }
@@ -55,30 +55,30 @@
         // chatNumber로 질문/답변을 홀수, 짝수 구분해 오류시 처리를 추가하지말고,
         // 인공지능 서버 오류 떠도 무조건 대화 출력하도록 할 것. (답변으로 서버 오류 알림)
         methods: {
-            addMyChats() {
-                this.chatLog.push({id:id++, text:this.myChat})
+            appendChat() {
+                this.chatLog.push(this.chat)
 
                 // 인공지능 모델의 답변 처리
-                this.chatLog.push({id:id++, text:bringAnswerFromModel(this.myChat)})
-                this.myChat = ''
+                this.chatLog.push(bringAnswerFromModel(this.chat))
+                this.chat = ''
             }
         }
-    }).mount('#app')    
+    }).mount('#app')
 </script>
 
 <div id="app">
     <div class="chat_wrap">
         <div class="inner">
             <!-- chat -->
-            <li v-for="myChat in chatLog" key="myChat.id">
+            <li v-for="chat in chatLog">
                 <div class = "box">
                     <p class="msg">
-                        {{ myChat.text }}
+                        {{ chat }}
                     </p>
                 </div>                
             </li>
         </div>        
-        <input @keyup.enter="addMyChats" id='question' v-model="myChat"
+        <input @keyup.enter="appendChat" id='question' v-model="chat"
         type="text" class="mymsg" placeholder='질문을 입력하세요' >
     </div>
 </div>
