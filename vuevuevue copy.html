@@ -15,17 +15,19 @@
             
             .chatLi{list-style-type: none;}
 
+            /* all chats */
             .chat_wrap .chatLi .box{display:inline-block; max-width:180px; position:relative}
-            .chat_wrap .chatLi .box::before{content:""; position:absolute; left:-8px; top:9px; border-top:0px solid transparent; border-bottom:8px solid transparent;border-right:8px solid #fff;}
-
+            .chat_wrap .chatLi .box::before{content:""; position:absolute; left:-8px; top:9px; border-top:0px solid transparent;
+                                                border-bottom:8px solid transparent;border-right:8px solid #fff;}
             .chat_wrap .chatLi .box .msg{background:#fff; border-radius:10px; padding:8px; text-align:left}
 
+            /* odd number chats */
             .chat_wrap .chatLi:nth-child(odd) {text-align:right}
             .chat_wrap .chatLi:nth-child(odd) .box .msg {background:#fee600}
             .chat_wrap .chatLi:nth-child(odd) .box::before{left:auto; right:-8px; border-left:8px solid #fee600; border-right:0;}
-            .chat_wrap .chatLi:nth-child(odd) .box{transition:all .3s ease-out; margin:0 20px 0 0;}
 
-            input[id="question"]{border:0; width:100%;background:#ddd; border-radius:5px; height:30px; padding-left:5px; box-sizing:border-box; margin-top:1px}
+            input[id="question"]{border:0; width:100%;background:#ddd; border-radius:5px; height:30px; 
+                                                padding-left:5px; box-sizing:border-box; margin-top:1px}
             input[id="question"]::placeholder{color:#999}
         </style>
 </head>
@@ -41,6 +43,7 @@
     import { createApp } from 'vue';
 
     let __answer__ = '';
+    let __question__ = '';
     
     function bringAnswerFromModel(question) {
         console.log("외부 api 사용해서 답변 생성하기 시작. 사용할 질문 : "
@@ -54,6 +57,7 @@
             success:function(data){
                 console.log("답변 생성 성공. ai가 생성한 답변 : " + data.answer);
                 __answer__ = data.answer;
+                console.log("답변생성끝")
             }
         })
         .fail(function() {
@@ -106,21 +110,21 @@
                 ]
             }
         },
-        // chatNumber로 질문/답변을 홀수, 짝수 구분해 오류시 처리를 추가하지말고,
-        // 인공지능 서버 오류 떠도 무조건 대화 출력하도록 할 것. (답변으로 서버 오류 알림)
+
+        watch: {
+            chatLog: {
+                immediate: true,
+                handler (val, oldVal) {
+                    console.log('changed!');
+                }
+            }
+        },
+
         methods: {
             appendChat() {
+                console.log(this.chat);
                 this.chatLog.push(this.chat);
-
-                bringAnswerFromModel(this.chat);
-
-                // 인공지능 모델의 답변 처리
-                this.chatLog.push(__answer__);
-                // add(this.chat);
-                this.chat = '';
-                var lastItem = $(".chat_wrap .inner").find(".item:last");
-                var position = lastItem.position().top + $(".chat_wrap .inner").scrollTop();
-                $(".chat_wrap .inner").stop().animate({scrollTop:position},500);
+                this.chat='';
             }
         }
     }).mount('#app')
