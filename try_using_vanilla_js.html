@@ -122,13 +122,14 @@
             }
         }
     }).mount('#app')
+
 </script>
 
 <div id="app">
     <div class="chat_wrap">
         <div class="inner">
             <!-- chat -->
-            <li v-for="chat in chatLog" class="chatLi">
+            <li v-for="chat in chatLog" class="chatLi" id="totalChat">
                 <div class = "box">
                     <p class="msg">
                         {{ chat }}
