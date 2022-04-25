@@ -1,0 +1,142 @@
+<head>
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <title>chatbot example</title>    
+        <style>   	
+            .chat_wrap { 
+                position:absolute;
+                left:50%; margin-left:-160px;
+                top:10%;
+                border:1px solid #999;
+                width:300px; padding:5px;
+                font-size:13px; color:#333; }
+            .chat_wrap .inner{background-color:#acc2d2; border-radius:5px; padding:10px; overflow-y:scroll;height: 400px;}
+            
+            .chatLi{list-style-type: none;}
+
+            /* all chats */
+            .chat_wrap .chatLi .box{display:inline-block; max-width:180px; position:relative}
+            .chat_wrap .chatLi .box::before{content:""; position:absolute; left:-8px; top:9px; border-top:0px solid transparent;
+                                                border-bottom:8px solid transparent;border-right:8px solid #fff;}
+            .chat_wrap .chatLi .box .msg{background:#fff; border-radius:10px; padding:8px; text-align:left}
+
+            /* odd number chats(quesitions) */
+            .chat_wrap .chatLi:nth-child(odd) {text-align:right}
+            .chat_wrap .chatLi:nth-child(odd) .box .msg {background:#fee600}
+            .chat_wrap .chatLi:nth-child(odd) .box::before{left:auto; right:-8px; border-left:8px solid #fee600; border-right:0;}
+
+            input[id="question"]{border:0; width:100%;background:#ddd; border-radius:5px; height:30px; 
+                                                padding-left:5px; box-sizing:border-box; margin-top:1px}
+            input[id="question"]::placeholder{color:#999}
+        </style>
+</head>
+<script type="importmap">
+    {
+      "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+      }
+    }    
+</script>
+
+<script type="module">
+    import { createApp } from 'vue';
+
+    let __answer__ = '';
+    let __question__ = '';
+    
+    function bringAnswerFromModel(question) {
+        console.log("외부 api 사용해서 답변 생성하기 시작. 사용할 질문 : "
+        + JSON.stringify(question));
+
+        $.ajax({
+            type : "GET",
+            url : "http://127.0.0.1:5005/" + question,
+            dataType :'json',
+            async : false,
+            success:function(data){
+                console.log("답변 생성 성공. ai가 생성한 답변 : " + data.answer);
+                __answer__ = data.answer;
+                console.log("답변생성끝")
+            }
+        })
+        .fail(function() {
+        console.log("ajax를 사용한 외부 api(챗봇인공지능모델) 연결 실패.\n \
+        챗봇 답변생성 서버가 실행되고 있지 않은 상태일 수 있습니다.");
+        alert("ajax를 사용한 외부 api(챗봇인공지능모델) 연결 실패.\n \
+        챗봇 답변생성 서버가 실행되고 있지 않은 상태일 수 있습니다.");
+        });
+    }
+
+    function add(question_, callback, error) {
+        console.log("DB에 질문 입력하기, 질문 : " + question);
+        // string => object
+        var question = {
+            question : question_
+        };
+        var data_ = JSON.stringify(question);
+        console.log(data_);
+        $.ajax({
+            type : 'post',
+            url : 'http://localhost:8080/questions/new',
+            data : data_,
+            contentType : "application/json; charset=utf-8",
+            success : function(result, status, xhr) {
+                console.log("DB에 질문 입력하기 성공. 입력한 질문 : "
+                + JSON.stringify(question));
+                if (callback) {
+                    callback(result);
+                }
+            },
+            error : function(xhr, status, er) {
+                if (error) {
+                    error(er);
+                    console.log("DB에 질문 입력 실패.")
+                }
+            }
+        })
+        .fail(function(e) {
+            console.log("ajax, DB에 질문 입력하기 실패. 사용할 수 없는 api.");
+            console.log(e);
+            alert("ajax, DB에 질문 입력하기 실패. 사용할 수 없는 api.");
+            })
+    }
+    
+    createApp({
+        data() {
+            return {
+                chat: '',
+                chatLog: [    
+                ]
+            }
+        },
+
+        methods: {
+            appendChat() {
+                console.log(this.chat);
+                this.chatLog.push(this.chat);
+                this.chat='';
+                this.$forceUpdate();
+                // add(this.chatLog[this.chatLog.length - 1]);
+                bringAnswerFromModel(this.chatLog[this.chatLog.length - 1]);
+            }
+        }
+    }).mount('#app')
+</script>
+
+<div id="app">
+    <div class="chat_wrap">
+        <div class="inner">
+            <!-- chat -->
+            <li v-for="chat in chatLog" class="chatLi">
+                <div class = "box">
+                    <p class="msg">
+                        {{ chat }}
+                    </p>
+                </div>                
+            </li>
+        </div>        
+        <input @keyup.enter="appendChat" id='question' v-model="chat"
+        type="text" class="mymsg" placeholder='질문을 입력하세요' >
+    </div>
+</div>
