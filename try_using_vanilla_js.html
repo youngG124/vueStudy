@@ -44,6 +44,7 @@
 
     let __answer__ = '';
     let __question__ = '';
+
     
     function bringAnswerFromModel(question) {
         console.log("외부 api 사용해서 답변 생성하기 시작. 사용할 질문 : "
@@ -110,18 +111,22 @@
                 ]
             }
         },
-
+   
         methods: {
             appendChat() {
-                console.log(this.chat);
-                this.chatLog.push(this.chat);
+                this.chatLog.push(this.chat);                
                 this.chat='';
-                this.$forceUpdate();
-                // add(this.chatLog[this.chatLog.length - 1]);
-                bringAnswerFromModel(this.chatLog[this.chatLog.length - 1]);
             }
         }
     }).mount('#app')
+
+const $input = document.querySelector('input');
+
+$input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        console.log('이벤트리스너에서 뽑은 질문 : ' + $input.value);
+    }
+});
 
 </script>
 

@@ -119,6 +119,7 @@
                 this.$forceUpdate();
                 // add(this.chatLog[this.chatLog.length - 1]);
                 bringAnswerFromModel(this.chatLog[this.chatLog.length - 1]);
+                this.chatLog.push(__answer__);
             }
         }
     }).mount('#app')
