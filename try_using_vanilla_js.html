@@ -14,7 +14,7 @@
                 border:1px solid #999;
                 width:300px; padding:5px;
                 font-size:13px; color:#333; }
-            .chat_wrap .inner{background-color:#acc2d2; border-radius:5px; padding:10px; overflow-y:scroll;height: 400px;}
+            .chat_wrap .inner{background-color:#acc2d2; border-radius:5px; padding:10px; overflow-y:scroll; height: 400px;}
             
             .chatLi{list-style-type: none;}
 
@@ -34,38 +34,49 @@
             input[id="question"]::placeholder{color:#999}
         </style>        
 </head>
-
-    <body>        
-        <div id="app">
-            <div class="chat_wrap">
-                <div class="inner">
-                    <!-- chat -->
-                    <li class="chatLi" id="totalChat">
-                        <div class = "box" style="display:none">
-                            <p class="msg">
-                            </p>
-                        </div>                
-                    </li>
-                </div>        
-                <input id='question' v-model="chat"
-                type="text" class="mymsg" placeholder='질문을 입력하세요' >
-            </div>
+<body>        
+    <div id="app">
+        <div class="chat_wrap">
+            <div class="inner" id="inner">
+                <!-- chat -->
+                <!-- <li class="chatLi" id="totalChat">
+                    <div class = "box" style="display:none">
+                        <p class="msg">
+                        </p>
+                    </div>       
+                </li> -->
+            </div>        
+            <input id='question' v-model="chat"
+            type="text" class="mymsg" placeholder='질문을 입력하세요' >
         </div>
-        <script>
-            const $input = document.querySelector('input');
-            const $msg = document.querySelector('.msg');
-            const $box = document.querySelector('.box');
+    </div>
+    <script>
+        const $input = document.querySelector('input');
+        const $total_chat = document.getElementById('inner');
 
-            $input.onkeyup = e => {
-                if (e.key !== 'Enter') return;
+        $input.onkeyup = e => {
+            if (e.key !== 'Enter') return;
 
-                $box.removeAttribute('style');
+            const $li = document.createElement('li');
+            $li.setAttribute('class', 'chatLi');
+            $li.setAttribute('id', 'totalChat');
 
-                $msg.textContent = e.target.value;
-                e.target.value = '';
-            };
-        </script>
-    </body>
+            const $div = document.createElement('div');            
+            $div.setAttribute('class', 'box');
+            $li.appendChild($div);
+
+            const $p = document.createElement('p');
+            $p.setAttribute('class', 'msg');
+            $div.appendChild($p);
+
+            $p.appendChild(document.createTextNode(e.target.value));
+
+            $total_chat.appendChild($li);
+
+            e.target.value = '';
+        };
+    </script>
+</body>
 </html>
 
 <script>
