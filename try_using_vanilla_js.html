@@ -53,9 +53,14 @@
     <script>
         const $input = document.querySelector('input');
         const $total_chat = document.getElementById('inner');
+        const $last_chat = document.getElementById('inner');
 
-        $input.onkeyup = e => {
+        let enterToggle = false;
+        
+        $input.onkeydown = e => {
+            if (!e.target.value) return;
             if (e.key !== 'Enter') return;
+            if (e.target.value.length === count_space(e.target.value)) return;
 
             const $li = document.createElement('li');
             $li.setAttribute('class', 'chatLi');
@@ -71,10 +76,55 @@
 
             $p.appendChild(document.createTextNode(e.target.value));
 
+            __question__ = e.target.value;
+
             $total_chat.appendChild($li);
+            $total_chat.scrollTop = $total_chat.scrollHeight;
 
             e.target.value = '';
+            enterToggle = true;
         };
+
+        $input.onkeyup = e => {
+            if (e.key !== 'Enter') return;
+            if (enterToggle === false) return;
+            // enterToggle이 True여야만(onkeydown 상황) onkeyup 실행
+
+            // db add, bring Answer
+            add(__question__);
+            bringAnswerFromModel(__question__);
+
+            const $li = document.createElement('li');
+            $li.setAttribute('class', 'chatLi');
+            $li.setAttribute('id', 'totalChat');
+
+            const $div = document.createElement('div');            
+            $div.setAttribute('class', 'box');
+            $li.appendChild($div);
+
+            const $p = document.createElement('p');
+            $p.setAttribute('class', 'msg');
+            $div.appendChild($p);
+
+            $p.appendChild(document.createTextNode(__answer__));
+
+            $total_chat.appendChild($li);
+            $total_chat.scrollTop = $total_chat.scrollHeight;
+
+            // enterToggle이 true가 되어야만 onkeyup이 실행되는데,
+            // true는 onkeydown을 통해서만 가능함. 따라서 onkeydown 없이는
+            // onkeyup 이벤트는 실행될 수가 없음.
+            enterToggle = false;
+        };
+
+        function count_space(str) {
+            let count = 0;
+            let i;
+            for(let value of str) {
+                if (value === ' ') count++;
+            }
+            return count;
+        }
     </script>
 </body>
 </html>
@@ -93,27 +143,21 @@
             dataType :'json',
             async : false,
             success:function(data){
-                console.log("답변 생성 성공. ai가 생성한 답변 : " + data.answer);
                 __answer__ = data.answer;
-                console.log("답변생성끝")
             }
         })
         .fail(function() {
-        console.log("ajax를 사용한 외부 api(챗봇인공지능모델) 연결 실패.\n \
-        챗봇 답변생성 서버가 실행되고 있지 않은 상태일 수 있습니다.");
-        alert("ajax를 사용한 외부 api(챗봇인공지능모델) 연결 실패.\n \
-        챗봇 답변생성 서버가 실행되고 있지 않은 상태일 수 있습니다.");
+        console.log("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
+        alert("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
         });
     }
 
     function add(question_, callback, error) {
-        console.log("DB에 질문 입력하기, 질문 : " + question);
         // string => object
         var question = {
             question : question_
         };
         var data_ = JSON.stringify(question);
-        console.log(data_);
         $.ajax({
             type : 'post',
             url : 'http://localhost:8080/questions/new',
