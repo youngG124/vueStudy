@@ -112,24 +112,30 @@
         },
 
         methods: {
-            appendChat() {
+            appendChat() {                
+                // const $box_display = document.querySelector('.box');
+                // $box_display.removeAttribute('style');
+
                 console.log(this.chat);
                 this.chatLog.push(this.chat);
                 this.chat='';
                 this.$forceUpdate();
                 // add(this.chatLog[this.chatLog.length - 1]);
-                bringAnswerFromModel(this.chatLog[this.chatLog.length - 1]);
+                // bringAnswerFromModel(this.chatLog[this.chatLog.length - 1]);
                 this.chatLog.push(__answer__);
             }
         }
     }).mount('#app')
+
+
 </script>
+
 
 <div id="app">
     <div class="chat_wrap">
         <div class="inner">
             <!-- chat -->
-            <li v-for="chat in chatLog" class="chatLi">
+            <li v-for="chat in chatLog" class="chatLi" style="display:none">
                 <div class = "box">
                     <p class="msg">
                         {{ chat }}

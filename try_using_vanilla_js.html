@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+<html>
+
 <head>
     <meta charset="UTF-8">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -29,23 +32,46 @@
             input[id="question"]{border:0; width:100%;background:#ddd; border-radius:5px; height:30px; 
                                                 padding-left:5px; box-sizing:border-box; margin-top:1px}
             input[id="question"]::placeholder{color:#999}
-        </style>
+        </style>        
 </head>
-<script type="importmap">
-    {
-      "imports": {
-        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
-      }
-    }    
-</script>
 
-<script type="module">
-    import { createApp } from 'vue';
+    <body>        
+        <div id="app">
+            <div class="chat_wrap">
+                <div class="inner">
+                    <!-- chat -->
+                    <li class="chatLi" id="totalChat">
+                        <div class = "box" style="display:none">
+                            <p class="msg">
+                            </p>
+                        </div>                
+                    </li>
+                </div>        
+                <input id='question' v-model="chat"
+                type="text" class="mymsg" placeholder='질문을 입력하세요' >
+            </div>
+        </div>
+        <script>
+            const $input = document.querySelector('input');
+            const $msg = document.querySelector('.msg');
+            const $box = document.querySelector('.box');
 
+            $input.onkeyup = e => {
+                if (e.key !== 'Enter') return;
+
+                $box.removeAttribute('style');
+
+                $msg.textContent = e.target.value;
+                e.target.value = '';
+            };
+        </script>
+    </body>
+</html>
+
+<script>
     let __answer__ = '';
     let __question__ = '';
 
-    
     function bringAnswerFromModel(question) {
         console.log("외부 api 사용해서 답변 생성하기 시작. 사용할 질문 : "
         + JSON.stringify(question));
@@ -102,47 +128,4 @@
             alert("ajax, DB에 질문 입력하기 실패. 사용할 수 없는 api.");
             })
     }
-    
-    createApp({
-        data() {
-            return {
-                chat: '',
-                chatLog: [    
-                ]
-            }
-        },
-   
-        methods: {
-            appendChat() {
-                this.chatLog.push(this.chat);                
-                this.chat='';
-            }
-        }
-    }).mount('#app')
-
-const $input = document.querySelector('input');
-
-$input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        console.log('이벤트리스너에서 뽑은 질문 : ' + $input.value);
-    }
-});
-
 </script>
-
-<div id="app">
-    <div class="chat_wrap">
-        <div class="inner">
-            <!-- chat -->
-            <li v-for="chat in chatLog" class="chatLi" id="totalChat">
-                <div class = "box">
-                    <p class="msg">
-                        {{ chat }}
-                    </p>
-                </div>                
-            </li>
-        </div>        
-        <input @keyup.enter="appendChat" id='question' v-model="chat"
-        type="text" class="mymsg" placeholder='질문을 입력하세요' >
-    </div>
-</div>
