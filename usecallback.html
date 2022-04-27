@@ -55,12 +55,24 @@
         const $total_chat = document.getElementById('inner');
         const $last_chat = document.getElementById('inner');
 
-        let enterToggle = false;
+        const isQA_toggle = false;
         
         $input.onkeydown = e => {
             if (!e.target.value) return;
             if (e.key !== 'Enter') return;
             if (e.target.value.length === count_space(e.target.value)) return;
+            
+            appendHtml(e.target.value);
+            checkLastChild();
+        };
+        
+        function checkLastChild() {
+            console.log('마지막 자식 노드의 텍스트 : ' + $total_chat.lastChild.textContent);
+            console.log('마지막 노드의 인덱스 번호 : ' + $total_chat.length);
+        }
+
+        // 노드 생성 함수
+        function appendHtml(text) {
 
             const $li = document.createElement('li');
             $li.setAttribute('class', 'chatLi');
@@ -74,48 +86,13 @@
             $p.setAttribute('class', 'msg');
             $div.appendChild($p);
 
-            $p.appendChild(document.createTextNode(e.target.value));
-
-            __question__ = e.target.value;
+            $p.appendChild(document.createTextNode(text));
 
             $total_chat.appendChild($li);
             $total_chat.scrollTop = $total_chat.scrollHeight;
 
-            e.target.value = '';
-            enterToggle = true;
-        };
-
-        $input.onkeyup = e => {
-            if (e.key !== 'Enter') return;
-            if (enterToggle === false) return;
-            // enterToggle이 True여야만(onkeydown 상황) onkeyup 실행
-
-            // db add, bring Answer
-            add(__question__);
-            bringAnswerFromModel(__question__);
-
-            const $li = document.createElement('li');
-            $li.setAttribute('class', 'chatLi');
-            $li.setAttribute('id', 'totalChat');
-
-            const $div = document.createElement('div');            
-            $div.setAttribute('class', 'box');
-            $li.appendChild($div);
-
-            const $p = document.createElement('p');
-            $p.setAttribute('class', 'msg');
-            $div.appendChild($p);
-
-            $p.appendChild(document.createTextNode(__answer__));
-
-            $total_chat.appendChild($li);
-            $total_chat.scrollTop = $total_chat.scrollHeight;
-
-            // enterToggle이 true가 되어야만 onkeyup이 실행되는데,
-            // true는 onkeydown을 통해서만 가능함. 따라서 onkeydown 없이는
-            // onkeyup 이벤트는 실행될 수가 없음.
-            enterToggle = false;
-        };
+            $input.value = '';
+        }
 
         function count_space(str) {
             let count = 0;

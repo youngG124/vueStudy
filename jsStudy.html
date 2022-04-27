@@ -5,23 +5,15 @@
 </head>
 <html>
 <body>
-    <input type="text"/>
-    <em class="message"></em>
-
     <script>
-        const $input = document.querySelector('input[type=text]');
-        const $msg = document.querySelector('.message');
+        function foo() {
+            var x = 'local';
+            console.log(x);
+            return x;
+        }
 
-        chatLog = [];
-
-        $input.onkeyup = e => {
-            if (e.key !== 'Enter') return;
-
-            chatLog.push(e.target.value);
-            console.log(chatLog);
-            $msg.textContent = chatLog;
-            e.target.value = '';
-        };
+        foo();
+        console.log(x);
     </script>
 </body>
 </html>
