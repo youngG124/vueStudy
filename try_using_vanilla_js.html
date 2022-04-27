@@ -46,42 +46,27 @@
                     </div>       
                 </li> -->
             </div>        
-            <input id='question' v-model="chat"
+            <input id='question' spellcheck="false"
             type="text" class="mymsg" placeholder='질문을 입력하세요' >
         </div>
     </div>
     <script>
         const $input = document.querySelector('input');
         const $total_chat = document.getElementById('inner');
-        const $last_chat = document.getElementById('inner');
 
         let enterToggle = false;
+
+        let chat_count = 0;
         
         $input.onkeydown = e => {
             if (!e.target.value) return;
             if (e.key !== 'Enter') return;
             if (e.target.value.length === count_space(e.target.value)) return;
-
-            const $li = document.createElement('li');
-            $li.setAttribute('class', 'chatLi');
-            $li.setAttribute('id', 'totalChat');
-
-            const $div = document.createElement('div');            
-            $div.setAttribute('class', 'box');
-            $li.appendChild($div);
-
-            const $p = document.createElement('p');
-            $p.setAttribute('class', 'msg');
-            $div.appendChild($p);
-
-            $p.appendChild(document.createTextNode(e.target.value));
-
+            
             __question__ = e.target.value;
+            appendHtml(e.target.value);
+            appendHtml('답변 생성중...');
 
-            $total_chat.appendChild($li);
-            $total_chat.scrollTop = $total_chat.scrollHeight;
-
-            e.target.value = '';
             enterToggle = true;
         };
 
@@ -91,31 +76,46 @@
             // enterToggle이 True여야만(onkeydown 상황) onkeyup 실행
 
             // db add, bring Answer
-            add(__question__);
+            //add(__question__);
             bringAnswerFromModel(__question__);
 
-            const $li = document.createElement('li');
-            $li.setAttribute('class', 'chatLi');
-            $li.setAttribute('id', 'totalChat');
-
-            const $div = document.createElement('div');            
-            $div.setAttribute('class', 'box');
-            $li.appendChild($div);
-
-            const $p = document.createElement('p');
-            $p.setAttribute('class', 'msg');
-            $div.appendChild($p);
-
-            $p.appendChild(document.createTextNode(__answer__));
-
-            $total_chat.appendChild($li);
-            $total_chat.scrollTop = $total_chat.scrollHeight;
+            change_to_answer(__answer__);
 
             // enterToggle이 true가 되어야만 onkeyup이 실행되는데,
             // true는 onkeydown을 통해서만 가능함. 따라서 onkeydown 없이는
             // onkeyup 이벤트는 실행될 수가 없음.
             enterToggle = false;
         };
+
+        function appendHtml(text) {
+            if (enterToggle == false) {
+                const $li = document.createElement('li');
+                $li.setAttribute('class', 'chatLi');
+                $li.setAttribute('id', 'totalChat');
+
+                const $div = document.createElement('div');            
+                $div.setAttribute('class', 'box');
+                $li.appendChild($div);
+
+                const $p = document.createElement('p');
+                $p.setAttribute('class', 'msg');
+                $p.setAttribute('id', chat_count);
+                $div.appendChild($p);
+
+                $p.appendChild(document.createTextNode(text));
+
+                $total_chat.appendChild($li);
+                chat_count++;
+                $total_chat.scrollTop = $total_chat.scrollHeight;
+
+                $input.value = '';
+                return;
+            }
+        }
+
+        function change_to_answer(text) {
+            document.getElementById(String(chat_count-1)).textContent = text;
+        }
 
         function count_space(str) {
             let count = 0;

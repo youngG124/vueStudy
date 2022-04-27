@@ -46,8 +46,8 @@
                     </div>       
                 </li> -->
             </div>        
-            <input id='question' v-model="chat"
-            type="text" class="mymsg" placeholder='질문을 입력하세요' >
+            <input id='question' type="text" 
+            class="mymsg" placeholder='질문을 입력하세요' spellcheck="false">
         </div>
     </div>
     <script>
@@ -55,20 +55,28 @@
         const $total_chat = document.getElementById('inner');
         const $last_chat = document.getElementById('inner');
 
-        const isQA_toggle = false;
+        let isQA_toggle = true;
         
         $input.onkeydown = e => {
             if (!e.target.value) return;
             if (e.key !== 'Enter') return;
             if (e.target.value.length === count_space(e.target.value)) return;
             
-            appendHtml(e.target.value);
-            checkLastChild();
+            // appendQA(e.target.value, bringAnswerFromModel);
+            appendQA(e.target.value);
         };
         
-        function checkLastChild() {
-            console.log('마지막 자식 노드의 텍스트 : ' + $total_chat.lastChild.textContent);
-            console.log('마지막 노드의 인덱스 번호 : ' + $total_chat.length);
+        // function appendQA(text, func) {
+        //     if (isQA_toggle === true) {
+        //         appendHtml(text);
+        //         func(text);
+        //     }
+        // }
+
+        function appendQA(text) {
+            appendHtml(text);
+            bringAnswerFromModel(text);
+            appendHtml(__answer__);
         }
 
         // 노드 생성 함수
