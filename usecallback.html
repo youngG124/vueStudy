@@ -62,23 +62,21 @@
             if (e.key !== 'Enter') return;
             if (e.target.value.length === count_space(e.target.value)) return;
             
-            // appendQA(e.target.value, bringAnswerFromModel);
-            appendQA(e.target.value);
+            // appendQA(e.target.value);
+
+            __question__ = e.target.value;
+
+            setTimeout(bringAnswerFromModel, 0);
+            appendHtml(e.target.value);
         };
         
-        // function appendQA(text, func) {
-        //     if (isQA_toggle === true) {
-        //         appendHtml(text);
-        //         func(text);
-        //     }
-        // }
 
         function appendQA(text) {
             appendHtml(text);
             bringAnswerFromModel(text);
-            appendHtml(__answer__);
         }
 
+        
         // 노드 생성 함수
         function appendHtml(text) {
 
@@ -100,6 +98,7 @@
             $total_chat.scrollTop = $total_chat.scrollHeight;
 
             $input.value = '';
+            console.log('append html 끝');
         }
 
         function count_space(str) {
@@ -118,9 +117,13 @@
     let __answer__ = '';
     let __question__ = '';
 
-    function bringAnswerFromModel(question) {
+    function bringAnswerFromModel() {
+        question = __question__;
+
         console.log("외부 api 사용해서 답변 생성하기 시작. 사용할 질문 : "
         + JSON.stringify(question));
+
+        
 
         $.ajax({
             type : "GET",
@@ -135,6 +138,8 @@
         console.log("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
         alert("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
         });
+
+        appendHtml(__answer__);
     }
 
     function add(question_, callback, error) {
