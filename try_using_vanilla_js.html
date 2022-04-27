@@ -115,6 +115,7 @@
 
         function change_to_answer(text) {
             document.getElementById(String(chat_count-1)).textContent = text;
+            $total_chat.scrollTop = $total_chat.scrollHeight;
         }
 
         function count_space(str) {

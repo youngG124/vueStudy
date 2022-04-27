@@ -53,28 +53,23 @@
     <script>
         const $input = document.querySelector('input');
         const $total_chat = document.getElementById('inner');
-        const $last_chat = document.getElementById('inner');
 
         let isQA_toggle = true;
+        let chat_count = 0;
         
         $input.onkeydown = e => {
             if (!e.target.value) return;
             if (e.key !== 'Enter') return;
             if (e.target.value.length === count_space(e.target.value)) return;
-            
-            // appendQA(e.target.value);
 
             __question__ = e.target.value;
 
+            // appendHtml 로 일단 html 생성하고,
+            // 답변 칸에 
             setTimeout(bringAnswerFromModel, 0);
             appendHtml(e.target.value);
+            appendHtml('답변 생성중...');
         };
-        
-
-        function appendQA(text) {
-            appendHtml(text);
-            bringAnswerFromModel(text);
-        }
 
         
         // 노드 생성 함수
@@ -90,15 +85,21 @@
 
             const $p = document.createElement('p');
             $p.setAttribute('class', 'msg');
+            $p.setAttribute('id', chat_count);
             $div.appendChild($p);
 
             $p.appendChild(document.createTextNode(text));
 
             $total_chat.appendChild($li);
+            chat_count++;
             $total_chat.scrollTop = $total_chat.scrollHeight;
 
             $input.value = '';
-            console.log('append html 끝');
+        }
+
+        function change_to_answer(text) {
+            document.getElementById(String(chat_count-1)).textContent = text;
+            $total_chat.scrollTop = $total_chat.scrollHeight;
         }
 
         function count_space(str) {
@@ -121,9 +122,7 @@
         question = __question__;
 
         console.log("외부 api 사용해서 답변 생성하기 시작. 사용할 질문 : "
-        + JSON.stringify(question));
-
-        
+        + JSON.stringify(question));        
 
         $.ajax({
             type : "GET",
@@ -131,15 +130,14 @@
             dataType :'json',
             async : false,
             success:function(data){
-                __answer__ = data.answer;
+                change_to_answer(data.answer);
             }
         })
         .fail(function() {
         console.log("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
         alert("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
+        change_to_answer("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
         });
-
-        appendHtml(__answer__);
     }
 
     function add(question_, callback, error) {
