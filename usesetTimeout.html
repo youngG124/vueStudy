@@ -34,7 +34,7 @@
             input[id="question"]::placeholder{color:#999}
         </style>        
 </head>
-<body>        
+<body>
     <div id="app">
         <div class="chat_wrap">
             <div class="inner" id="inner">
@@ -54,7 +54,6 @@
         const $input = document.querySelector('input');
         const $total_chat = document.getElementById('inner');
 
-        let isQA_toggle = true;
         let chat_count = 0;
         
         $input.onkeydown = e => {
@@ -64,13 +63,12 @@
 
             __question__ = e.target.value;
 
-            // appendHtml 로 일단 html 생성하고,
-            // 답변 칸에 
+            // appendHtml 로 일단 말풍선 두개 생성하고,
+            // 마지막 말풍선 모델 답변으로 교체.
             setTimeout(bringAnswerFromModel, 0);
             appendHtml(e.target.value);
             appendHtml('답변 생성중...');
         };
-
         
         // 노드 생성 함수
         function appendHtml(text) {
@@ -119,7 +117,7 @@
     let __question__ = '';
 
     function bringAnswerFromModel() {
-        question = __question__;
+        question = document.getElementById(String(chat_count-2)).textContent;
 
         console.log("외부 api 사용해서 답변 생성하기 시작. 사용할 질문 : "
         + JSON.stringify(question));        
