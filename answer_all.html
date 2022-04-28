@@ -95,8 +95,8 @@
             $input.value = '';
         }
 
-        function change_to_answer(text) {
-            document.getElementById(String(chat_count-1)).textContent = text;
+        function change_to_answer(text, num) {
+            document.getElementById(String(num)).textContent = text;
             $total_chat.scrollTop = $total_chat.scrollHeight;
         }
 
@@ -117,26 +117,36 @@
     let __question__ = '';
 
     function bringAnswerFromModel() {
+        let i;
+        for (i=1; i<chat_count+1; i++) {
+            if (i%2 == 0) {
+                if (document.getElementById(String(i)).textContent === '답변 생성중...') {
 
-        question = document.getElementById(String(chat_count-2)).textContent;
+                    console.log(document.getElementById(String(i-1)).textContent);
+                    question = document.getElementById(String(i-1)).textContent;
 
-        console.log("외부 api 사용해서 답변 생성하기 시작. 사용할 질문 : "
-        + JSON.stringify(question));        
+                    console.log("외부 api 사용해서 답변 생성하기 시작. 사용할 질문 : "
+                    + JSON.stringify(question));
 
-        $.ajax({
-            type : "GET",
-            url : "http://127.0.0.1:5005/" + question,
-            dataType :'json',
-            async : false,
-            success:function(data){
-                change_to_answer(data.answer);
+                    $.ajax({
+                        type : "GET",
+                        url : "http://127.0.0.1:5005/" + question,
+                        dataType :'json',
+                        async : false,
+                        success:function(data){
+                            console.log('모델에서 답변 추출 완료, 반영할 말풍선 번호 : ' + i);
+                            change_to_answer(data.answer, String(i));
+                        }
+                    })
+
+                    .fail(function() {
+                    console.log("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
+                    alert("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
+                    change_to_answer("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
+                    });
+                }
             }
-        })
-        .fail(function() {
-        console.log("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
-        alert("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
-        change_to_answer("인공지능 모델 서버와 연결 실패.\n서버가 실행중이지 않거나 질문이 빈 값입니다.");
-        });
+        }
     }
 
     function add(question_, callback, error) {

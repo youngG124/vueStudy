@@ -39,11 +39,17 @@
     }    
 </script>
 
+<script>
+    const $box_display = document.querySelector('.box');
+    console.log($box_display);
+</script>
+
 <script type="module">
     import { createApp } from 'vue';
 
     let __answer__ = '';
     let __question__ = '';
+    let count = 0;
     
     function bringAnswerFromModel(question) {
         console.log("외부 api 사용해서 답변 생성하기 시작. 사용할 질문 : "
@@ -112,30 +118,24 @@
         },
 
         methods: {
-            appendChat() {                
-                // const $box_display = document.querySelector('.box');
-                // $box_display.removeAttribute('style');
-
-                console.log(this.chat);
+            appendChat() {
                 this.chatLog.push(this.chat);
                 this.chat='';
-                this.$forceUpdate();
+                
+                console.log(this.chatLog[this.chatLog.length - 1]);
                 // add(this.chatLog[this.chatLog.length - 1]);
-                // bringAnswerFromModel(this.chatLog[this.chatLog.length - 1]);
+                bringAnswerFromModel(this.chatLog[this.chatLog.length - 1]);
                 this.chatLog.push(__answer__);
             }
         }
     }).mount('#app')
-
-
 </script>
-
 
 <div id="app">
     <div class="chat_wrap">
         <div class="inner">
             <!-- chat -->
-            <li v-for="chat in chatLog" class="chatLi" style="display:none">
+            <li v-for="chat in chatLog" class="chatLi">
                 <div class = "box">
                     <p class="msg">
                         {{ chat }}
