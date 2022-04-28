@@ -54,13 +54,18 @@
         const $input = document.querySelector('input');
         const $total_chat = document.getElementById('inner');
 
+        // 말풍선 번호
         let chat_count = 1;
+
+        let answering_finished = true;
         
         $input.onkeydown = e => {
             if (!e.target.value) return;
             if (e.key !== 'Enter') return;
-            if (e.target.value.length === count_space(e.target.value)) return;            
+            if (e.target.value.length === count_space(e.target.value)) return;
+            if (!answering_finished) return;
 
+            answering_finished = false;
             __question__ = e.target.value;
 
             // appendHtml 로 일단 말풍선 두개 생성하고,
@@ -70,7 +75,17 @@
             appendHtml('답변 생성중...');
         };
         
-        // 노드 생성 함수
+        // 공백 수 세기
+        function count_space(str) {
+            let count = 0;
+            let i;
+            for(let value of str) {
+                if (value === ' ') count++;
+            }
+            return count;
+        }
+
+        // 노드 생성
         function appendHtml(text) {
 
             const $li = document.createElement('li');
@@ -99,15 +114,6 @@
             document.getElementById(String(chat_count-1)).textContent = text;
             $total_chat.scrollTop = $total_chat.scrollHeight;
         }
-
-        function count_space(str) {
-            let count = 0;
-            let i;
-            for(let value of str) {
-                if (value === ' ') count++;
-            }
-            return count;
-        }
     </script>
 </body>
 </html>
@@ -130,6 +136,7 @@
             async : false,
             success:function(data){
                 change_to_answer(data.answer);
+                answering_finished = true;
             }
         })
         .fail(function() {
