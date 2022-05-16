@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<body>
+    
+
+    <div>
+        <h1>웹 단어장</h1>
+
+        <input id="enInput" placeholder="영어 단어를 입력하세요.">
+
+        <ul id="voca_list">
+            <li id="vNum">
+                <span id="en">vocabulary</span> : <span id="ko">단어</span>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        let vNum = 1;
+        let en_ko_toggle = true;
+
+        const $enInput = document.getElementById('enInput');
+
+        $enInput.onkeydown = e => {
+            if (!e.target.value) return;
+            if (e.key !== 'Enter') return;
+            if (e.target.value.length === count_space(e.target.value)) return;
+
+            console.log(e.target.value);
+            e.target.value ='';
+
+            if (en_ko_toggle === true) {
+                const $li = createElement('li');
+                $li.setAttribute('id', vNum);
+            }
+        }
+    </script>
+</body>
+
+<script>
+    function count_space(str) {
+        let count = 0;
+        let i;
+        for(let value of str) {
+            if (value === ' ') count++;
+        }
+        return count;
+    }
+</script>
