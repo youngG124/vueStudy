@@ -80,6 +80,7 @@
             bringAnswerFromModel(__question__);
 
             change_to_answer(__answer__);
+            auto_scroll_controll();
 
             // enterToggle이 true가 되어야만 onkeyup이 실행되는데,
             // true는 onkeydown을 통해서만 가능함. 따라서 onkeydown 없이는
@@ -106,14 +107,17 @@
 
                 $total_chat.appendChild($li);
                 chat_count++;
-                auto_scroll_controll();
 
                 $input.value = '';
+
+                auto_scroll_controll();
                 return;
             }
         }
 
         function auto_scroll_controll() {
+
+            console.log($total_chat.scrollHeight);
             $total_chat.scrollTop = $total_chat.scrollHeight;
         }
 
