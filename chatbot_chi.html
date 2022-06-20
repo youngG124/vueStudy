@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <title>chatbot example</title>    
+        <style>   	
+            .chat_wrap { 
+                position:absolute;
+                left:50%; margin-left:-160px;
+                top:10%;
+                border:1px solid #999;
+                width:300px; padding:5px;
+                font-size:13px; color:#333; }
+            .chat_wrap .inner{background-color:#acc2d2; border-radius:5px; padding:10px; overflow-y:scroll; height: 460px;}
+            
+            .chatLi{list-style-type: none;}
+
+            /* all chats */
+            .chat_wrap .chatLi .box{display:inline-block; max-width:180px; position:relative}
+            .chat_wrap .chatLi .box::before{content:""; position:absolute; left:-8px; top:9px; border-top:0px solid transparent;
+                                                border-bottom:8px solid transparent;border-right:8px solid #fff; display: inline-block; margin-top: 13px;}
+            .chat_wrap .chatLi .box .msg{background:#fff; border-radius:10px; padding:8px; text-align:left}
+
+            /* odd number chats(quesitions) */
+            .chat_wrap .chatLi:nth-child(odd) {text-align:right}
+            .chat_wrap .chatLi:nth-child(odd) .box .msg {background:#fee600}
+            .chat_wrap .chatLi:nth-child(odd) .box::before{left:auto; right:-8px; border-left:8px solid #fee600; border-right:0; display: inline-block; margin-top: 13px;}
+
+            input[id="question"]{border:0; width:100%;background:#ddd; border-radius:5px; height:30px; 
+                                                padding-left:5px; box-sizing:border-box; margin-top:1px}
+            input[id="question"]::placeholder{color:#999}
+        </style>        
+</head>
+<body>        
+    <div id="app">
+        <div class="chat_wrap">
+            <div class="inner" id="inner">
+                <!-- chat -->
+                <!-- <li class="chatLi" id="totalChat">
+                    <div class = "box" style="display:none">
+                        <p class="msg">
+                        </p>
+                    </div>       
+                </li> -->
+            </div>        
+            <input id='question' spellcheck="false"
+            type="text" class="mymsg" placeholder='질문을 입력하세요' >
+        </div>
+    </div>
+    <script>
+        const $input = document.querySelector('input');
+        const $total_chat = document.getElementById('inner');
+
+        let enterToggle = false;
+
+        let chat_count = 0;
+        
+        $input.onkeydown = e => {
+            if (!e.target.value) return;
+            if (e.key !== 'Enter') return;
+            if (e.target.value.length === count_space(e.target.value)) return;
+            
+            __question__ = e.target.value;
+            appendHtml(e.target.value);
+            appendHtml('답변 생성중...');
+
+            enterToggle = true;
+        };
+
+        $input.onkeyup = e => {
+            if (e.key !== 'Enter') return;
+            if (enterToggle === false) return;
+            // enterToggle이 True여야만(onkeydown 상황) onkeyup 실행
+
+            // db add, bring Answer
+            // add(__question__);
+            bringAnswerFromModel(__question__);
+
+            change_to_answer(__answer__);
+            auto_scroll_controll();
+
+            // enterToggle이 true가 되어야만 onkeyup이 실행되는데,
+            // true는 onkeydown을 통해서만 가능함. 따라서 onkeydown 없이는
+            // onkeyup 이벤트는 실행될 수가 없음.
+            enterToggle = false;
+        };
+
+        // html 말풍선 노드를 생성하여 노드 리스트에 추가
+        function appendHtml(text) {
+            if (enterToggle == false) {
+                const $li = document.createElement('li');
+                $li.setAttribute('class', 'chatLi');
+                $li.setAttribute('id', 'totalChat');
+
+                const $div = document.createElement('div');            
+                $div.setAttribute('class', 'box');
+                $li.appendChild($div);
+
+                const $p = document.createElement('p');
+                $p.setAttribute('class', 'msg');
+                $p.setAttribute('id', chat_count);
+                $div.appendChild($p);
+
+                $p.appendChild(document.createTextNode(text));
+
+                $total_chat.appendChild($li);
+                chat_count++;
+
+                $input.value = '';
+
+                auto_scroll_controll();
+                return;
+            }
+        }
+
+        // 한영 전환 21 or 229
+
+        // 말풍선 생성시 마다 스크롤 자동으로 바닥으로
+        function auto_scroll_controll() {
+            $total_chat.scrollTop = $total_chat.scrollHeight;
+        }
+
+        // 마지막 말풍선의 빈칸을 질문에 대한 답으로 교체
+        function change_to_answer(text) {
+            document.getElementById(String(chat_count-1)).textContent = text;
+        }
+
+        // 빈 칸 개수 세는 함수(빈칸으로만 이뤄진 입력 거르기 위함)
+        function count_space(str) {
+            let count = 0;
+            let i;
+            for(let value of str) {
+                if (value === ' ') count++;
+            }
+            return count;
+        }
+    </script>
+</body>
+</html>
+
+<script>
+    let __answer__ = '';
+    let __question__ = '';
+
+    function bringAnswerFromModel(question) {
+        console.log("인공지능 답변 생성 시작. 사용할 질문 : "
+        + JSON.stringify(question));
+
+        $.ajax({
+            type : "GET",
+            url : "http://127.0.0.1:5005/" + question,
+            dataType :'json',
+            async : false,
+            success:function(data){
+                __answer__ = data.answer;
+            }
+        })
+        .fail(function() {
+        console.log("인공지능 모델 서버 연결 실패.\n답변 생성 서버가 실행중이지 않을 수 있습니다..");
+        alert("인공지능 모델 서버 연결 실패.\n답변 생성 서버가 실행중이지 않을 수 있습니다.");
+        });
+    }
+
+    function add(question_, callback, error) {
+        // string => object
+        var question = {
+            question : question_
+        };
+        var data_ = JSON.stringify(question);
+        $.ajax({
+            type : 'post',
+            url : 'http://localhost:8080/questions/new',
+            data : data_,
+            contentType : "application/json; charset=utf-8",
+            success : function(result, status, xhr) {
+                console.log("DB에 질문 입력하기 성공. 입력한 질문 : "
+                + JSON.stringify(question));
+                if (callback) {
+                    callback(result);
+                }
+            },
+            error : function(xhr, status, er) {
+                if (error) {
+                    error(er);
+                    console.log("DB에 질문 입력 실패.")
+                }
+            }
+        })
+        .fail(function(e) {
+            console.log("DB 서버 연결 실패.\nDB 서버가 실행중이지 않을 수 있습니다.");
+            console.log(e);
+            alert("DB 서버 연결 실패.\nDB 서버가 실행중이지 않을 수 있습니다.");
+        })
+    }
+</script>
